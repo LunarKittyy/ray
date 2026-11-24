@@ -208,8 +208,10 @@ def stage_bodies(name: str) -> dict[str, Body]:
 
 
 def version_line(file_name: str) -> str:
-    # compute は core プロファイル、それ以外は Iris 推奨の compatibility
-    return "#version 460" if file_name.endswith(".csh") else "#version 460 compatibility"
+    # compute と line は core プロファイル、それ以外は Iris 推奨の compatibility
+    # Iris は line を常に core の変換に通すが compatibility の語を残すので、Mesa がコンパイルを拒む
+    core = file_name.endswith(".csh") or file_name.startswith("gbuffers_line.")
+    return "#version 460" if core else "#version 460 compatibility"
 
 
 def wrapper_text(file_name: str, world_define: str, body: Body) -> str:

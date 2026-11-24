@@ -385,6 +385,9 @@ def build_source(wrapper: Path, overrides: dict[str, str | bool], options: dict[
     linemap = list(raw_map)
     lines = apply_overrides(list(raw), overrides, options, candidates)
     assert lines[0].startswith("#version"), f"{wrapper}: 1 行目が #version ではない"
+    if wrapper.name.startswith("gbuffers_line.") and "compatibility" not in lines[0]:
+        # Iris は line の gl_Vertex などを core の変換で置き換えるが、ここでは再現しないので compatibility で読む
+        lines[0] = lines[0].rstrip() + " compatibility"
     inject = [f"#define {k} {v}".rstrip() for k, v in {**IRIS_MACROS, **env.macros}.items()]
     inject += [f"#define MC_RENDER_STAGE_{s} {i}" for i, s in enumerate(RENDER_STAGES)]
     inject += [f"#define IRIS_FEATURE_{f}" for f in features]
